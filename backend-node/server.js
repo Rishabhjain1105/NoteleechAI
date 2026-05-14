@@ -1,0 +1,54 @@
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const dotenv = require("dotenv");
+
+dotenv.config();
+
+const app = express();
+
+app.use(cors({ origin: "http://localhost:5173" }));
+app.use(express.json());
+
+// Routes
+const authRoutes = require("./routes/auth");
+const pdfRoutes = require("./routes/pdf");
+const chatRoutes = require("./routes/chat");
+
+app.use("/api/auth", authRoutes);
+app.use("/api/pdf", pdfRoutes);
+app.use("/api/chat", chatRoutes);
+
+// MongoDB connection with Atlas options and retry logic
+let isConnecting = false;
+const connectMongoDB = () => {
+    if (isConnecting) return;
+    isConnecting = true;
+    
+    console.log("Attempting to connect to MongoDB Atlas...");
+    
+    mongoose.connect(process.env.MONGO_URI, {
+        retryWrites: true,
+        w: 'majority',
+        serverSelectionTimeoutMS: 30000,
+        socketTimeoutMS: 45000,
+        connectTimeoutMS: 30000,
+        authSource: 'admin',
+    })
+        .then(() => {
+            isConnecting = false;
+            console.log("✓ MongoDB Atlas connected successfully!");
+            console.log("Database: noteleech");
+        })
+        .catch((err) => {
+            isConnecting = false;
+            console.error("✗ MongoDB connection error:", err.message);
+            console.log("Retrying in 5 seconds...");
+            setTimeout(connectMongoDB, 5000);
+        });
+};
+
+connectMongoDB();
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Node server running on port ${PORT}`));
