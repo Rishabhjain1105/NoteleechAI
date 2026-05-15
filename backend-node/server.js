@@ -19,6 +19,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/pdf", pdfRoutes);
 app.use("/api/chat", chatRoutes);
 
+<<<<<<< HEAD
 // MongoDB connection with Atlas options and retry logic
 let isConnecting = false;
 const connectMongoDB = () => {
@@ -49,6 +50,12 @@ const connectMongoDB = () => {
 };
 
 connectMongoDB();
+=======
+// MongoDB connection
+mongoose.connect(process.env.MONGO_URI)
+    .then(() => console.log("MongoDB connected"))
+    .catch((err) => console.log("MongoDB error:", err));
+>>>>>>> e81fc980682fd7fcd50c990f28f00b4848cb5fc3
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Node server running on port ${PORT}`));
