@@ -42,9 +42,7 @@ const ChatWithPDF = () => {
             console.log('File uploaded successfully in chat with pdf:', data);
             
             // Store the uploaded filename from backend response
-            if (data.file && data.file.filename) {
-                setUploadedFileName(data.file.filename);
-            }
+            setUploadedFileName(data.collection);
             
             setUploadStatus('File uploaded successfully!');
             
@@ -75,12 +73,12 @@ const ChatWithPDF = () => {
 
         try {
             // 2️⃣ Send message to Node backend
-            const response = await fetch('http://localhost:8000/chat', {
+            const response = await fetch('http://localhost:8000/chat/ask', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     question: inputText,
-                    fileName: uploadedFileName, // use the filename from backend
+                    collection_name: uploadedFileName, // use the filename from backend
                 }),
             });
 

@@ -1,7 +1,7 @@
-import React, {useState} from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import NavBarDashboard from '../Header/DashboardNavBar/NavBarDashboard';
 import { BookOpenTextIcon, ClipboardSignature, DotSquareIcon, Upload } from 'lucide-react';
-import { Send, FileText, X } from 'lucide-react';
+import { Send, X, Sparkles, Loader2 } from 'lucide-react';
 import UploadPdfBox from '../UploadPdfBox/UploadPdfBox';
 
 const Dashboard = () => {
@@ -10,8 +10,14 @@ const Dashboard = () => {
     const [uploadStatus, setUploadStatus] = useState('');
     const [inputText, setInputText] = useState('');
     const [messages, setMessages] = useState([]);
-
+    const [collectionName, setCollectionName] = useState('');
+    const [isTyping, setIsTyping] = useState(false);
+    const messageEndRef = useRef(null);
     const [uploadButtonClicked, setUploadButtonClicked] = useState(false)
+
+    useEffect(() => {
+        messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
 
     const handleUpload = () => {
         setUploadButtonClicked(prev => !prev)
@@ -19,7 +25,8 @@ const Dashboard = () => {
 
     const handleFileAccepted = async (file) => {
         setUploadedFile(file);
-        setUploadStatus("Uploading PDF...");
+        setUploadStatus('Uploading & processing PDF...');
+        setUploadButtonClicked(false);
 
         const formData = new FormData();
         formData.append('PDF', file);
@@ -28,32 +35,67 @@ const Dashboard = () => {
             const response = await fetch('http://localhost:8000/pdf/upload', {
                 method: 'POST',
                 body: formData,
-                onUploadProgress: (progress) => {
-                    const percentCompleted = Math.round((progress.loaded * 100) / progress.total);
-                    setUploadStatus(`Uploading... ${percentCompleted}%`);
-                }
             });
 
-            console.log('File uploaded successfully in dashboard:', response);
-            setUploadStatus('File uploaded successfully!');
-            
-        } catch(error) {
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.detail || 'Upload failed');
+            }
+
+            const data = await response.json();
+            setCollectionName(data.collection);   // <-- this is the key line
+            setUploadStatus('Ready! Ask anything about your PDF.');
+        } catch (error) {
             console.error('Error uploading file:', error);
-            setUploadStatus('Upload failed. Please try again.');
-            setUploadedFile(null); 
+            setUploadStatus(`Upload failed: ${error.message}`);
+            setUploadedFile(null);
         }
     };
     
-    const handleSend = () => {
-        if (inputText.trim()) {
-            setMessages(prev => [...prev, { text: inputText, sender: 'user' }]);
+    const handleSend = async () => {
+        const question = inputText.trim();
+        if (!question) return;
+
+        if (!collectionName) {
+            setMessages(prev => [...prev,
+                { text: question, sender: 'user' },
+                { text: 'Please upload a PDF first before asking questions.', sender: 'bot' }
+            ]);
             setInputText('');
-            // Here you would typically send the message to your AI service
+            return;
+        }
+
+        setMessages(prev => [...prev, { text: question, sender: 'user' }]);
+        setInputText('');
+        setIsTyping(true);
+
+        try {
+            const response = await fetch('http://localhost:8000/chat/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    question,
+                    collection_name: collectionName,
+                }),
+            });
+
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.detail || 'Failed to get response');
+            }
+
+            const data = await response.json();
+            setMessages(prev => [...prev, { text: data.answer, sender: 'bot' }]);
+        } catch (error) {
+            setMessages(prev => [...prev, { text: `Error: ${error.message}`, sender: 'bot' }]);
+        } finally {
+            setIsTyping(false);
         }
     };
 
     const handleRemoveFile = () => {
         setUploadedFile(null);
+        setCollectionName('');
         setUploadStatus('');
         setMessages([]);
     };
@@ -92,7 +134,50 @@ const Dashboard = () => {
 
                     {uploadButtonClicked && <UploadPdfBox onFileAccepted={handleFileAccepted} />}
                     
-                    {/* main chatting logic  */}
+                    {/* main chatting logic */}
+                    {messages.length > 0 && (
+                        <div className="w-full flex flex-col gap-4 pb-4">
+                            {messages.map((msg, index) => (
+                                <div key={index} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                    <div className={`flex gap-3 max-w-[80%] ${msg.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                                            msg.sender === 'user' ? 'bg-blue-600' : 'bg-gray-700'
+                                        }`}>
+                                            {msg.sender === 'user'
+                                                ? <span className="text-white font-bold text-xs">You</span>
+                                                : <Sparkles className="w-5 h-5 text-blue-400" />
+                                            }
+                                        </div>
+                                        <div className={`px-5 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
+                                            msg.sender === 'user'
+                                                ? 'bg-blue-600 text-white rounded-tr-sm'
+                                                : 'bg-[#161b22] text-gray-100 rounded-tl-sm border border-[#30363d]'
+                                        }`}>
+                                            {msg.text}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+
+                            {isTyping && (
+                                <div className="flex justify-start">
+                                    <div className="flex gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-gray-700 flex items-center justify-center">
+                                            <Sparkles className="w-5 h-5 text-blue-400" />
+                                        </div>
+                                        <div className="px-5 py-3 rounded-2xl bg-[#161b22] border border-[#30363d]">
+                                            <div className="flex gap-1">
+                                                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" />
+                                                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                                                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                            <div ref={messageEndRef} />
+                        </div>
+                    )}
                 </section>
                 
                 {/* Bottom Search Box - Fixed at bottom */}
@@ -142,16 +227,24 @@ const Dashboard = () => {
                                 
                             {/* Input Area */}
                             <div className="flex items-center p-4">
-                                <input 
+                                <input
                                     type="text"
+                                    value={inputText}                              // ADD
+                                    onChange={(e) => setInputText(e.target.value)} // ADD
                                     placeholder="Ask about your PDF..."
                                     className="flex-1 bg-transparent text-white placeholder-gray-400 outline-none text-sm"
                                     onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                                    disabled={isTyping}                            // ADD
                                 />
-                                <button 
-                                    className="ml-3 p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200"
+                                <button
+                                    onClick={handleSend}
+                                    disabled={!inputText.trim() || isTyping}       // ADD disabled
+                                    className="ml-3 p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
                                 >
-                                    <Send className="w-5 h-5" />
+                                    {isTyping
+                                        ? <Loader2 className="w-5 h-5 animate-spin" />
+                                        : <Send className="w-5 h-5" />
+                                    }
                                 </button>
                             </div>
                         </div>

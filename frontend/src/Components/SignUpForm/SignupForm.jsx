@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 const SignupForm = () => {
   const [formData, setFormData] = useState({
@@ -40,7 +40,6 @@ const SignupForm = () => {
       setLoading(true);
       setSuccess(false);
 
-<<<<<<< HEAD
       try {
         // Call backend API
         const response = await fetch("http://localhost:5000/api/auth/register", {
@@ -85,20 +84,6 @@ const SignupForm = () => {
       } finally {
         setLoading(false);
       }
-=======
-      // Simulate API call
-      setTimeout(() => {
-        console.log("Form submitted:", formData);
-        setLoading(false);
-        setSuccess(true);
-        setFormData({
-          name: "",
-          email: "",
-          password: "",
-          confirmPassword: "",
-        });
-      }, 1500);
->>>>>>> e81fc980682fd7fcd50c990f28f00b4848cb5fc3
     }
   };
 
@@ -121,15 +106,13 @@ const SignupForm = () => {
           </p>
         )}
 
-<<<<<<< HEAD
         {errors.form && (
           <p className="text-red-400 text-center mb-4">
             ❌ {errors.form}
           </p>
         )}
 
-=======
->>>>>>> e81fc980682fd7fcd50c990f28f00b4848cb5fc3
+
         <div className="space-y-4">
           {/* Name */}
           <div>
