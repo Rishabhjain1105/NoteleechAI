@@ -1,11 +1,15 @@
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_qdrant import QdrantVectorStore
-from ollama import Client
+from groq import Groq
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 QDRANT_URL = "http://localhost:6333"
 
 embedding_model = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-ollama_client = Client(host="http://localhost:11434/")
+groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def answer_question(question: str, collection_name: str) -> str:
     vector_store = QdrantVectorStore.from_existing_collection(
@@ -38,12 +42,12 @@ def answer_question(question: str, collection_name: str) -> str:
     {context}
     """
 
-    response = ollama_client.chat(
-        model="llama3",
+    response = groq_client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": question},
         ]
     )
 
-    return response.message.content
+    return response.choices[0].message.content
