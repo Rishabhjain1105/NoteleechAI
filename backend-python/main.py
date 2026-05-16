@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes import pdf, chat, flashcard, summary, crux, quiz
+from routes import pdf, chat, flashcard, summary, crux, quiz, notes
+from qdrant_client import QdrantClient
 
 app = FastAPI()
 
@@ -18,3 +19,11 @@ app.include_router(flashcard.router, prefix="/flashcard", tags=["Flashcard"])
 app.include_router(summary.router, prefix="/summary", tags=["Summary"])
 app.include_router(crux.router, prefix="/crux", tags=["Crux"])
 app.include_router(quiz.router, prefix="/quiz", tags=["Quiz"])
+app.include_router(notes.router, prefix="/notes", tags=["Notes"])
+
+
+@app.get("/collections")
+def get_collections():
+    client = QdrantClient(url="http://localhost:6333")
+    collections = [c.name for c in client.get_collections().collections]
+    return {"collections": collections}

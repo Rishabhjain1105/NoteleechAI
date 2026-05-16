@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import NavBarDashboard from '../Header/DashboardNavBar/NavBarDashboard';
 import { Form, BookOpenTextIcon, ClipboardSignature, DotSquareIcon, Upload } from 'lucide-react';
-import { Send, X, Sparkles, Loader2 } from 'lucide-react';
+import { Send, X, Sparkles, Loader2, FileText } from 'lucide-react';
 import UploadPdfBox from '../UploadPdfBox/UploadPdfBox';
 import FlashcardModal from '../Flashcard/FlashcardModal';
 import SummaryModal from '../Summary/SummaryModal';
 import CruxModal from '../Crux/CruxModal';
 import QuizModal from '../Quiz/QuizModal';
+import NotesModal from '../Notes/NotesModal';
 
 const Dashboard = () => {
 
@@ -22,6 +23,7 @@ const Dashboard = () => {
     const [showSummaryModal, setShowSummaryModal] = useState(false);
     const [showCruxModal, setShowCruxModal] = useState(false);
     const [showQuizModal, setShowQuizModal] = useState(false);
+    const [showNotesModal, setShowNotesModal] = useState(false);
 
     useEffect(() => {
         messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -126,6 +128,7 @@ const Dashboard = () => {
         {icon: BookOpenTextIcon, title: "Quiz", onClick: ()=> setShowQuizModal(true)},
         { icon: Form, title: 'Summary', onClick: () => setShowSummaryModal(true) },
         { icon: DotSquareIcon, title: 'Crux', onClick: () => setShowCruxModal(true) },
+        { icon: FileText, title: 'Notes', onClick: () => setShowNotesModal(true) },
     ]
     return (
         <>  
@@ -283,6 +286,12 @@ const Dashboard = () => {
             <QuizModal
                 collectionName={collectionName}
                 onClose={() => setShowQuizModal(false)}
+            />
+        )}
+        {showNotesModal && (
+            <NotesModal
+                collectionName={collectionName}
+                onClose={() => setShowNotesModal(false)}
             />
         )}
         </>
