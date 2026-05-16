@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes import pdf, chat
+from routes import pdf, chat, flashcard, summary, crux, quiz
 
 app = FastAPI()
 
@@ -14,3 +14,7 @@ app.add_middleware(
 
 app.include_router(pdf.router, prefix="/pdf", tags=["PDF"])
 app.include_router(chat.router, prefix="/chat", tags=["Chat"])
+app.include_router(flashcard.router, prefix="/flashcard", tags=["Flashcard"])
+app.include_router(summary.router, prefix="/summary", tags=["Summary"])
+app.include_router(crux.router, prefix="/crux", tags=["Crux"])
+app.include_router(quiz.router, prefix="/quiz", tags=["Quiz"])

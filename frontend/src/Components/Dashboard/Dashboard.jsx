@@ -1,8 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import NavBarDashboard from '../Header/DashboardNavBar/NavBarDashboard';
-import { BookOpenTextIcon, ClipboardSignature, DotSquareIcon, Upload } from 'lucide-react';
+import { Form, BookOpenTextIcon, ClipboardSignature, DotSquareIcon, Upload } from 'lucide-react';
 import { Send, X, Sparkles, Loader2 } from 'lucide-react';
 import UploadPdfBox from '../UploadPdfBox/UploadPdfBox';
+import FlashcardModal from '../Flashcard/FlashcardModal';
+import SummaryModal from '../Summary/SummaryModal';
+import CruxModal from '../Crux/CruxModal';
+import QuizModal from '../Quiz/QuizModal';
 
 const Dashboard = () => {
 
@@ -13,7 +17,11 @@ const Dashboard = () => {
     const [collectionName, setCollectionName] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const messageEndRef = useRef(null);
-    const [uploadButtonClicked, setUploadButtonClicked] = useState(false)
+    const [uploadButtonClicked, setUploadButtonClicked] = useState(false);
+    const [showFlashcardModal, setShowFlashcardModal] = useState(false);
+    const [showSummaryModal, setShowSummaryModal] = useState(false);
+    const [showCruxModal, setShowCruxModal] = useState(false);
+    const [showQuizModal, setShowQuizModal] = useState(false);
 
     useEffect(() => {
         messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -114,9 +122,10 @@ const Dashboard = () => {
 
     const items = [
         {icon: Upload, title: "Upload", onClick: handleUpload },
-        {icon: ClipboardSignature, title: "FlashCards", onClick: ()=> console.log("Adarsh clicked FlashCards")},
-        {icon: BookOpenTextIcon, title: "Quiz", onClick: ()=> console.log("Adarsh clicked Quiz")},
-        {icon: DotSquareIcon, title: "Crux", onClick: ()=> console.log("Adarsh clicked Crux")},
+        { icon: ClipboardSignature, title: 'FlashCards', onClick: () => setShowFlashcardModal(true) },
+        {icon: BookOpenTextIcon, title: "Quiz", onClick: ()=> setShowQuizModal(true)},
+        { icon: Form, title: 'Summary', onClick: () => setShowSummaryModal(true) },
+        { icon: DotSquareIcon, title: 'Crux', onClick: () => setShowCruxModal(true) },
     ]
     return (
         <>  
@@ -252,6 +261,30 @@ const Dashboard = () => {
                 </section>
             </main>
         </div>
+        {showFlashcardModal && (
+            <FlashcardModal
+                collectionName={collectionName}
+                onClose={() => setShowFlashcardModal(false)}
+            />
+        )}
+        {showSummaryModal && (
+            <SummaryModal
+                collectionName={collectionName}
+                onClose={() => setShowSummaryModal(false)}
+            />
+        )}
+        {showCruxModal && (
+            <CruxModal
+                collectionName={collectionName}
+                onClose={() => setShowCruxModal(false)}
+            />
+        )}
+        {showQuizModal && (
+            <QuizModal
+                collectionName={collectionName}
+                onClose={() => setShowQuizModal(false)}
+            />
+        )}
         </>
     );
 };

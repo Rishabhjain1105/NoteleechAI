@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const flashcardRoutes = require("./routes/flashcard");
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ const chatRoutes = require("./routes/chat");
 app.use("/api/auth", authRoutes);
 app.use("/api/pdf", pdfRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/flashcard", flashcardRoutes);
 
 // MongoDB connection with Atlas options and retry logic
 let isConnecting = false;
