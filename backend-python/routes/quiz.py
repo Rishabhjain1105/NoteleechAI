@@ -76,12 +76,17 @@ def generate_quiz(req: QuizRequest):
 
         raw = response.choices[0].message.content.strip()
 
-        # Clean up if model wraps in markdown
-        if raw.startswith("```"):
+        # Clean markdown if model wraps in backticks
+        if "```" in raw:
             raw = raw.split("```")[1]
             if raw.startswith("json"):
                 raw = raw[4:]
-        raw = raw.strip()
+            raw = raw.strip()
+
+        # Find JSON array within the response
+        start = raw.find("[")
+        end = raw.rfind("]") + 1
+        raw = raw[start:end]
 
         quiz = json.loads(raw)
         return {"quiz": quiz}
