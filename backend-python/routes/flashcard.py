@@ -48,8 +48,9 @@ def generate_flashcard(req: FlashcardRequest):
         Rules:
         1. Return ONLY a JSON object, no extra text, no markdown.
         2. Format: {{"topic": "...", "front": "question here", "back": "answer here"}}
-        3. Front should be a clear question.
-        4. Back should be a concise answer.
+        3. Front should be a clear question and question should be friendly.
+        4. Back should be a concise answer along with relevant details. Use complete sentences.
+        5. Question and answer should be based on context only and answers should be direct.
 
         Context:
         {context}

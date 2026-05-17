@@ -133,12 +133,12 @@ def generate_notes(req: NotesRequest):
         You are an expert note maker. Based on the context below, generate well structured study notes.
 
         Rules:
-        1. Use # for main headings, ## for subheadings, ### for sub-subheadings
-        2. Use - for bullet points
-        3. Do NOT use any special characters, symbols, or unicode. Only use plain English letters, numbers, and basic punctuation like . , : ; ! ?
-        4. Do NOT just copy text. Explain each topic clearly in simple language.
-        5. Keep explanations concise but informative.
-        6. Return only the notes content, no extra commentary.
+        1. Notes should include headings, subheadings, and explanation.
+        2. For every heading and subheading, provide a brief explanation in simple language.
+        3. Only include information that is present in the context. Do not add any external information.
+        4. It may look like dictionary entries, but do not include bullet points.
+        5. Only headings and respective paragraphs are required.
+        6. Do not add conclusion.
 
         Context:
         {context}

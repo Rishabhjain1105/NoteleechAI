@@ -34,15 +34,16 @@ def generate_crux(req: CruxRequest):
         context = "\n\n".join([r.page_content for r in results])
 
         prompt = f"""
-        You are an expert at finding the core essence of any document.
-        Based on the context below, extract the crux — the single most important idea or conclusion of this document.
+        You are expert in finding the core idea of the given context.
+        Give precise answer to the question "What is the crux of the context?" based on the following rules.
 
         Rules:
-        1. Answer in 2 to 4 lines maximum.
-        2. Be direct and precise.
-        3. No bullet points, just plain flowing sentences.
-        4. Capture the deepest insight or conclusion, not just a surface summary.
-        5. Only use information from the context.
+        1. Answer should be only of 2 to 4 lines.
+        2. Answer only from the knowledge of context.
+        3. Do not include anything from outer knowledge or assumptions.
+        4. Answer should be in single paragraph.
+        5. Try to weight topics based on importance and give collective answer.
+        6. If the context is having many topics, try to mention them in the same paragraph in a concise way.
 
         Context:
         {context}

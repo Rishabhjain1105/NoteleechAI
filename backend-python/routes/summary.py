@@ -34,13 +34,16 @@ def generate_summary(req: SummaryRequest):
         context = "\n\n".join([r.page_content for r in results])
 
         prompt = f"""
-        You are a summarization expert. Based on the context below, generate a clean structured summary.
+        You are summary agent. Based on the given context generate a summary by following rules below:
 
+        
         Rules:
-        1. Start with a one line overview of what the document is about.
-        2. Then list the key points as bullet points.
-        3. Keep it concise and easy to read.
-        4. Do not add anything that is not in the context.
+        1. Start witn overview of the document.
+        2. Then add main topics with one liner descriptions for each.
+        3. Always only use bullet points for sub topics and their explanations.
+        4. For main topics, use bold text and sub topics are already covered with bullet points, so do not use bold for them.
+        5. Keep it concise and easy to read.
+        6. Do not add anything that is not in the context.
 
         Context:
         {context}
