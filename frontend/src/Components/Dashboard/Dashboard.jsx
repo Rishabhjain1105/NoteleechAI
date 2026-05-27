@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import NavBarDashboard from '../Header/DashboardNavBar/NavBarDashboard';
-import { Form, BookOpenTextIcon, ClipboardSignature, DotSquareIcon, Upload } from 'lucide-react';
+import { Form, BookOpenTextIcon, ClipboardSignature, DotSquareIcon, Upload, ArrowRight } from 'lucide-react';
 import { Send, X, Sparkles, Loader2, FileText } from 'lucide-react';
 import UploadPdfBox from '../UploadPdfBox/UploadPdfBox';
 import FlashcardModal from '../Flashcard/FlashcardModal';
@@ -24,6 +25,7 @@ const Dashboard = () => {
     const [showCruxModal, setShowCruxModal] = useState(false);
     const [showQuizModal, setShowQuizModal] = useState(false);
     const [showNotesModal, setShowNotesModal] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -129,6 +131,7 @@ const Dashboard = () => {
         { icon: Form, title: 'Summary', onClick: () => setShowSummaryModal(true) },
         { icon: DotSquareIcon, title: 'Crux', onClick: () => setShowCruxModal(true) },
         { icon: FileText, title: 'Notes', onClick: () => setShowNotesModal(true) },
+        { icon: ArrowRight, title: 'NoteLog', onClick: () => navigate('/notelog') },
     ]
     return (
         <>  
